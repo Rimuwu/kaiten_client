@@ -687,6 +687,36 @@ class KaitenClient:
         await self._request('DELETE', f'{KaitenConfig.ENDPOINT_SPACES}/{space_id}')
         return True
     
+    # === ПОЛЬЗОВАТЕЛИ ПРОСТРАНСТВА ===
+    
+    async def get_space_users(
+        self,
+        space_id: int,
+        include_inherited_access: Optional[bool] = None,
+        inactive: Optional[bool] = None
+    ) -> List[Dict[str, Any]]:
+        """
+        Получает список пользователей пространства.
+        
+        Args:
+            space_id: ID пространства
+            include_inherited_access: Включить пользователей с унаследованным доступом
+            inactive: Включить только неактивных пользователей компании
+        
+        Returns:
+            Список пользователей
+        """
+        params = {}
+        
+        if include_inherited_access is not None:
+            params['include_inherited_access'] = include_inherited_access
+        if inactive is not None:
+            params['inactive'] = inactive
+        
+        endpoint = f'{KaitenConfig.ENDPOINT_SPACES}/{space_id}/users'
+        response = await self._request('GET', endpoint, params=params)
+        return response if isinstance(response, list) else response.get('items', [])
+    
     # === ДОСКИ ===
     
     async def get_boards(self, space_id: int) -> List[Board]:
